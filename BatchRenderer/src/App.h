@@ -9,6 +9,8 @@
 
 #include "Shader.h"
 
+#include "Structs.h"
+
 class App
 {
 public:
@@ -17,7 +19,6 @@ public:
 
 	int Run();
 private:
-	float m_ClearColor = 0.0f;
 	GLFWwindow* m_Window;
 
 	std::string m_Title;
@@ -29,12 +30,18 @@ private:
 
 	GLuint m_QuadVA, m_QuadVB, m_QuadIB;
 
-	GLuint m_Pic1, m_Pic2;
+	GLuint m_Pic1, m_Pic2, m_Pic3;
+
+	float m_FirstQuad[2] = { 505.0f, 300.0f };
+	glm::vec4 m_BackColor = { 0.0f, 0.0f ,0.0f, 0.0f };
+	bool m_SetBackground = false;
+	Vertex m_BackgroundPic[4];
 
 	void OnUpdate();
 	void OnRender();
 	void OnImGuiRender();
-
-	float m_FirstQuad[2] = { 500.0f, 500.0f };
+	
+	void SetBackground(GLuint pic, bool fullscreen);
+	void SetBackground(glm::vec4 color);
 };
 

@@ -171,6 +171,7 @@
     <ClInclude Include="src\3pty\imgui\imstb_truetype.h" />
     <ClInclude Include="src\App.h" />
     <ClInclude Include="src\Shader.h" />
+    <ClInclude Include="src\Structs.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

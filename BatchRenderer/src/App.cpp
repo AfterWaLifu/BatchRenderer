@@ -11,23 +11,6 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <stb_image.h>
 
-struct Vec2 {
-    float x, y;
-};
-struct Vec3 {
-    float x, y, z;
-};
-struct Vec4 {
-    float x, y, z, w;
-};
-
-struct Vertex {
-    Vec3 Position;
-    Vec4 Color;
-    Vec2 TexCoords;
-    float TexID;
-};
-
 static GLuint LoadTexture(const std::string& path)
 {
     int w, h, bits;
@@ -118,10 +101,10 @@ App::App(const std::string title, uint32_t width, uint32_t height)
 
     glUseProgram(m_Shader->GetRendererID());
     auto loc = glGetUniformLocation(m_Shader->GetRendererID(), "u_Textures");
-    int samplers[2] = { 0,1 };
-    glUniform1iv(loc, 2, samplers);
+    int samplers[3] = { 0,1,2 };
+    glUniform1iv(loc, 3, samplers);
 
-    const size_t MaxQuadCount = 1000;
+    const size_t MaxQuadCount = 50;
     const size_t MaxVertexCount = MaxQuadCount * 4;
     const size_t MaxIndexCount = MaxQuadCount * 6;
 
@@ -165,6 +148,7 @@ App::App(const std::string title, uint32_t width, uint32_t height)
 
     m_Pic1 = LoadTexture("assets/masyunya.png");
     m_Pic2 = LoadTexture("assets/neverhood.png");
+    m_Pic3 = LoadTexture("assets/background.jpg");
 
     ImGui::CreateContext();
     ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
@@ -208,22 +192,32 @@ void App::OnUpdate()
 
 void App::OnRender()
 {
-    glClearColor(m_ClearColor, m_ClearColor, m_ClearColor, m_ClearColor);
+    GLsizei indexCount = 0;
+    SetBackground(m_BackColor);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    uint32_t indexCount = 0;
-
-    std::array<Vertex, 1000> vertices;
+    m_BackgroundPic[0] = {};
+    m_BackgroundPic[1] = {};
+    m_BackgroundPic[2] = {};
+    m_BackgroundPic[3] = {};
+    std::array<Vertex, 200> vertices;
     Vertex* buffer = vertices.data();
-    for (int y = 0; y < 5; ++y) {
-        for (int x = 0; x < 5; ++x) {
+    for (int y = 0; y < 3; ++y) {
+        for (int x = 0; x < 3; ++x) {
             buffer = CreateQuad(buffer, (float)x*100, (float)y*100, 100, 100, (float)((x + y) % 2));
             indexCount += 6;
         }
     }
-
-    buffer = CreateQuad(buffer, m_FirstQuad[0], m_FirstQuad[1], 100, 100, 0.0f);
+    
+    buffer = CreateQuad(buffer, m_FirstQuad[0], m_FirstQuad[1], 200, 200, 0.0f);
     indexCount += 6;
+
+    if (m_SetBackground) {
+        SetBackground(2, true);
+        memcpy(buffer, m_BackgroundPic, sizeof(m_BackgroundPic));
+        buffer += 4;
+        indexCount += 6;
+    }
 
     glBindBuffer(GL_ARRAY_BUFFER, m_QuadVB);
     glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(Vertex), vertices.data());
@@ -232,6 +226,7 @@ void App::OnRender()
 
     glBindTextureUnit(0, m_Pic1);
     glBindTextureUnit(1, m_Pic2);
+    glBindTextureUnit(2, m_Pic3);
 
     int location = glGetUniformLocation(m_Shader->GetRendererID(), "u_ViewProjection");
     glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(m_Proj));
@@ -242,7 +237,23 @@ void App::OnRender()
 
 void App::OnImGuiRender()
 {
-    ImGui::DragFloat("Background Color", &m_ClearColor, 0.02, 0.0f, 1.0f);
-    ImGui::DragFloat2("First pos", m_FirstQuad, 1.0f);
+    ImGui::ColorEdit4("Background Color", &m_BackColor.r);
+    ImGui::DragFloat2("Pisunya position", m_FirstQuad, 1.0f);
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+    ImGui::Checkbox("Turn ON Background Pic", &m_SetBackground);
+}
+
+void App::SetBackground(GLuint pic, bool fullscreen)
+{
+    if (fullscreen) {
+        CreateQuad(m_BackgroundPic, (float)0,(float)0, (float)m_Width, (float)m_Height, (float)pic);
+    }
+    else {
+        CreateQuad(m_BackgroundPic, (float)0, (float)0, (float)m_Width, (float)m_Height, (float)pic); // TODO
+    }
+}
+
+void App::SetBackground(glm::vec4 color)
+{
+    glClearColor(color.r, color.g, color.b, color.a);
 }
