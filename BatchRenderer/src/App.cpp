@@ -16,7 +16,7 @@ static GLuint LoadTexture(const std::string& path)
     int w, h, bits;
 
     stbi_set_flip_vertically_on_load(1);
-    auto* pixels = stbi_load(path.c_str(), &w, &h, &bits, STBI_rgb);
+    auto* pixels = stbi_load(path.c_str(), &w, &h, &bits, STBI_rgb_alpha);
     GLuint textureID;
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);
@@ -24,7 +24,7 @@ static GLuint LoadTexture(const std::string& path)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
     if (pixels) {
         stbi_image_free(pixels);
@@ -90,7 +90,7 @@ App::App(const std::string title, uint32_t width, uint32_t height)
 
     std::cout << glGetString(GL_VERSION) << std::endl;
 
-    glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -202,15 +202,6 @@ void App::OnRender()
     m_BackgroundPic[3] = {};
     std::array<Vertex, 200> vertices;
     Vertex* buffer = vertices.data();
-    for (int y = 0; y < 3; ++y) {
-        for (int x = 0; x < 3; ++x) {
-            buffer = CreateQuad(buffer, (float)x*100, (float)y*100, 100, 100, (float)((x + y) % 2));
-            indexCount += 6;
-        }
-    }
-    
-    buffer = CreateQuad(buffer, m_FirstQuad[0], m_FirstQuad[1], 200, 200, 0.0f);
-    indexCount += 6;
 
     if (m_SetBackground) {
         SetBackground(2, true);
@@ -218,6 +209,16 @@ void App::OnRender()
         buffer += 4;
         indexCount += 6;
     }
+
+    for (int y = 0; y < 5; ++y) {
+        for (int x = 0; x < 9; ++x) {
+            buffer = CreateQuad(buffer, (float)x*100, (float)y*100, 100, 100, (float)((0)));
+            indexCount += 6;
+        }
+    }
+
+    buffer = CreateQuad(buffer, m_FirstQuad[0], m_FirstQuad[1], 200, 200, 0.0f);
+    indexCount += 6;
 
     glBindBuffer(GL_ARRAY_BUFFER, m_QuadVB);
     glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(Vertex), vertices.data());
