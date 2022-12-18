@@ -11,6 +11,10 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <stb_image.h>
 
+const size_t MaxQuadCount = 50;
+const size_t MaxVertexCount = MaxQuadCount * 4;
+const size_t MaxIndexCount = MaxQuadCount * 6;
+
 static GLuint LoadTexture(const std::string& path)
 {
     int w, h, bits;
@@ -34,33 +38,38 @@ static GLuint LoadTexture(const std::string& path)
 }
 
 static Vertex* CreateQuad(Vertex* target, 
-    float x, float y, float sizex, float sizey, float textureID) {
-
-    target->Position = { x, y, 0.0f };
+    glm::vec2 coords, glm::vec2 size, float layer, float textureID) {
+    layer = layer / 100.0f;
+    
+    target->Position = { coords.x, coords.y, layer };
     target->Color = { 0.96f, 0.6f, 0.18f, 1.0f };
     target->TexCoords = { 0.0f, 0.0f };
     target->TexID = textureID;
     ++target;
 
-    target->Position = { x + sizex, y, 0.0f };
+    target->Position = { coords.x + size.x, coords.y, layer };
     target->Color = { 0.16f, 0.6f, 0.18f, 1.0f };
     target->TexCoords = { 1.0f, 0.0f };
     target->TexID = textureID;
     ++target;
 
-    target->Position = { x + sizex, y + sizey, 0.0f };
+    target->Position = { coords.x + size.x, coords.y + size.y, layer };
     target->Color = { 0.16f, 0.6f, 0.18f, 1.0f };
     target->TexCoords = { 1.0f, 1.0f };
     target->TexID = textureID;
     ++target;
 
-    target->Position = { x, y + sizey, 0.0f };
+    target->Position = { coords.x, coords.y + size.y, layer };
     target->Color = { 0.96f, 0.6f, 0.18f, 1.0f };
     target->TexCoords = { 0.0f, 1.0f };
     target->TexID = textureID;
     ++target;
 
     return target;
+}
+
+static Vertex* CreateQuad(Vertex* target, int x, int y, int sizex, int sizey, int layer, int textureID) {
+    CreateQuad(target, {(float)x, (float)y}, {(float)sizex, (float)sizey}, (float)layer, (float)textureID);
 }
 
 App::App(const std::string title, uint32_t width, uint32_t height)
@@ -90,7 +99,7 @@ App::App(const std::string title, uint32_t width, uint32_t height)
 
     std::cout << glGetString(GL_VERSION) << std::endl;
 
-    //glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -103,10 +112,6 @@ App::App(const std::string title, uint32_t width, uint32_t height)
     auto loc = glGetUniformLocation(m_Shader->GetRendererID(), "u_Textures");
     int samplers[3] = { 0,1,2 };
     glUniform1iv(loc, 3, samplers);
-
-    const size_t MaxQuadCount = 50;
-    const size_t MaxVertexCount = MaxQuadCount * 4;
-    const size_t MaxIndexCount = MaxQuadCount * 6;
 
     glCreateVertexArrays(1, &m_QuadVA);
     glBindVertexArray(m_QuadVA);
@@ -210,14 +215,14 @@ void App::OnRender()
         indexCount += 6;
     }
 
-    for (int y = 0; y < 5; ++y) {
-        for (int x = 0; x < 9; ++x) {
-            buffer = CreateQuad(buffer, (float)x*100, (float)y*100, 100, 100, (float)((0)));
+    for (float y = 0; y < 5; ++y) {
+        for (float x = 0; x < 9; ++x) {
+            buffer = CreateQuad(buffer, { x * 100,y * 100 }, { 100, 100 }, 1.0f,1.0f);
             indexCount += 6;
         }
     }
 
-    buffer = CreateQuad(buffer, m_FirstQuad[0], m_FirstQuad[1], 200, 200, 0.0f);
+    buffer = CreateQuad(buffer, { m_FirstQuad.x, m_FirstQuad.y }, { 200, 200 },2.0f, 0.0f);
     indexCount += 6;
 
     glBindBuffer(GL_ARRAY_BUFFER, m_QuadVB);
@@ -239,7 +244,7 @@ void App::OnRender()
 void App::OnImGuiRender()
 {
     ImGui::ColorEdit4("Background Color", &m_BackColor.r);
-    ImGui::DragFloat2("Pisunya position", m_FirstQuad, 1.0f);
+    ImGui::DragFloat2("Pisunya position", &m_FirstQuad.x, 1.0f);
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
     ImGui::Checkbox("Turn ON Background Pic", &m_SetBackground);
 }
@@ -247,10 +252,10 @@ void App::OnImGuiRender()
 void App::SetBackground(GLuint pic, bool fullscreen)
 {
     if (fullscreen) {
-        CreateQuad(m_BackgroundPic, (float)0,(float)0, (float)m_Width, (float)m_Height, (float)pic);
+        CreateQuad(m_BackgroundPic, { 0.0f,0.0f }, { (float)m_Width, (float)m_Height }, 0.0f ,(float)pic);
     }
     else {
-        CreateQuad(m_BackgroundPic, (float)0, (float)0, (float)m_Width, (float)m_Height, (float)pic); // TODO
+        CreateQuad(m_BackgroundPic, { 0.0f,0.0f }, { (float)m_Width, (float)m_Height }, 0.0f, (float)pic); //todo
     }
 }
 

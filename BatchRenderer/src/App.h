@@ -32,7 +32,7 @@ private:
 
 	GLuint m_Pic1, m_Pic2, m_Pic3;
 
-	float m_FirstQuad[2] = { 505.0f, 300.0f };
+	glm::vec2 m_FirstQuad = { 505.0f, 300.0f };
 	glm::vec4 m_BackColor = { 0.0f, 0.0f ,0.0f, 0.0f };
 	bool m_SetBackground = false;
 	Vertex m_BackgroundPic[4];
@@ -41,7 +41,6 @@ private:
 	void OnRender();
 	void OnImGuiRender();
 	
-	void SetBackground(GLuint pic, bool fullscreen);
+	void SetBackground(GLuint pic, bool fullscreen = true);
 	void SetBackground(glm::vec4 color);
 };
-
