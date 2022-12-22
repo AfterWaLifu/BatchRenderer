@@ -36,12 +36,13 @@ private:
 	glm::vec2 m_FirstQuad = { 505.0f, 300.0f };
 	glm::vec4 m_BackColor = { 0.0f, 0.0f ,0.0f, 0.0f };
 	bool m_SetBackground = false;
+	bool m_StretchBackground = false;
 	Vertex m_BackgroundPic[4];
 
 	void OnUpdate();
 	void OnRender();
 	void OnImGuiRender();
 	
-	void SetBackground(GLuint pic, bool fullscreen = true);
+	void SetBackground(const Texture& pic, bool fullscreen = true);
 	void SetBackground(glm::vec4 color);
 };

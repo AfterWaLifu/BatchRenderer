@@ -47,7 +47,7 @@ static Vertex* CreateQuad(Vertex* target,
 }
 
 static Vertex* CreateQuad(Vertex* target, int x, int y, int sizex, int sizey, int layer, int textureID) {
-    CreateQuad(target, {(float)x, (float)y}, {(float)sizex, (float)sizey}, (float)layer, (float)textureID);
+    return CreateQuad(target, {(float)x, (float)y}, {(float)sizex, (float)sizey}, (float)layer, (float)textureID);
 }
 
 App::App(const std::string title, uint32_t width, uint32_t height)
@@ -187,18 +187,18 @@ void App::OnRender()
     Vertex* buffer = vertices.data();
 
     if (m_SetBackground) {
-        SetBackground(2, true);
+        SetBackground(*m_Pic2, m_StretchBackground);
         memcpy(buffer, m_BackgroundPic, sizeof(m_BackgroundPic));
         buffer += 4;
         indexCount += 6;
     }
-
+    /*
     for (float y = 0; y < 5; ++y) {
         for (float x = 0; x < 9; ++x) {
             buffer = CreateQuad(buffer, { x * 100,y * 100 }, { 100, 100 }, 1.0f,1.0f);
             indexCount += 6;
         }
-    }
+    }*/
 
     buffer = CreateQuad(buffer, { m_FirstQuad.x, m_FirstQuad.y }, { 200, 200 },2.0f, 0.0f);
     indexCount += 6;
@@ -225,15 +225,24 @@ void App::OnImGuiRender()
     ImGui::DragFloat2("Pisunya position", &m_FirstQuad.x, 1.0f);
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
     ImGui::Checkbox("Turn ON Background Pic", &m_SetBackground);
+    ImGui::Checkbox("Stretch Background Pic", &m_StretchBackground);
 }
 
-void App::SetBackground(GLuint pic, bool fullscreen)
+void App::SetBackground(const Texture& pic, bool fullscreen)
 {
     if (fullscreen) {
-        CreateQuad(m_BackgroundPic, { 0.0f,0.0f }, { (float)m_Width, (float)m_Height }, 0.0f ,(float)pic);
+        CreateQuad(m_BackgroundPic, 
+            0.0f,0.0f,
+            (float)m_Width, (float)m_Height,
+            0.0f ,(float)pic.PictureDescriptor -1.0f);
     }
     else {
-        CreateQuad(m_BackgroundPic, { 0.0f,0.0f }, { (float)m_Width, (float)m_Height }, 0.0f, (float)pic); //todo
+        float picWidth = pic.GetWidth();
+        float picHeight = pic.GetHeight();
+        CreateQuad(m_BackgroundPic, 
+            m_Width/2 - picWidth/2, m_Height/2-picHeight/2,
+            picWidth, picHeight,
+            0.0f, (float)pic.PictureDescriptor - 1);
     }
 }
 
