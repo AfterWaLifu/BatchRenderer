@@ -8,6 +8,7 @@
 #include <memory>
 
 #include "Shader.h"
+#include "Texture.h"
 
 #include "Structs.h"
 
@@ -30,7 +31,7 @@ private:
 
 	GLuint m_QuadVA, m_QuadVB, m_QuadIB;
 
-	GLuint m_Pic1, m_Pic2, m_Pic3;
+	std::unique_ptr<Texture> m_Pic1, m_Pic2, m_Pic3;
 
 	glm::vec2 m_FirstQuad = { 505.0f, 300.0f };
 	glm::vec4 m_BackColor = { 0.0f, 0.0f ,0.0f, 0.0f };

@@ -3,9 +3,9 @@
 #include <iostream>
 #include <array>
 
-#include "3pty/imgui/imgui.h"
-#include "3pty/imgui/imgui_impl_glfw.h"
-#include "3pty/imgui/imgui_impl_opengl3.h"
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -14,28 +14,6 @@
 const size_t MaxQuadCount = 50;
 const size_t MaxVertexCount = MaxQuadCount * 4;
 const size_t MaxIndexCount = MaxQuadCount * 6;
-
-static GLuint LoadTexture(const std::string& path)
-{
-    int w, h, bits;
-
-    stbi_set_flip_vertically_on_load(1);
-    auto* pixels = stbi_load(path.c_str(), &w, &h, &bits, STBI_rgb_alpha);
-    GLuint textureID;
-    glGenTextures(1, &textureID);
-    glBindTexture(GL_TEXTURE_2D, textureID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-
-    if (pixels) {
-        stbi_image_free(pixels);
-    }
-
-    return textureID;
-}
 
 static Vertex* CreateQuad(Vertex* target, 
     glm::vec2 coords, glm::vec2 size, float layer, float textureID) {
@@ -151,9 +129,9 @@ App::App(const std::string title, uint32_t width, uint32_t height)
 
     m_Proj = glm::ortho(0.0f, (float)m_Width, 0.0f, (float)m_Height, -1.0f, 1.0f);
 
-    m_Pic1 = LoadTexture("assets/masyunya.png");
-    m_Pic2 = LoadTexture("assets/neverhood.png");
-    m_Pic3 = LoadTexture("assets/background.jpg");
+    m_Pic1 = std::make_unique<Texture>("assets/masyunya.png");
+    m_Pic2 = std::make_unique<Texture>("assets/neverhood.png");
+    m_Pic3 = std::make_unique<Texture>("assets/background.jpg");
 
     ImGui::CreateContext();
     ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
@@ -230,9 +208,9 @@ void App::OnRender()
 
     glUseProgram(m_Shader->GetRendererID());
 
-    glBindTextureUnit(0, m_Pic1);
-    glBindTextureUnit(1, m_Pic2);
-    glBindTextureUnit(2, m_Pic3);
+    glBindTextureUnit(0, m_Pic1->PictureDescriptor);
+    glBindTextureUnit(1, m_Pic2->PictureDescriptor);
+    glBindTextureUnit(2, m_Pic3->PictureDescriptor);
 
     int location = glGetUniformLocation(m_Shader->GetRendererID(), "u_ViewProjection");
     glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(m_Proj));

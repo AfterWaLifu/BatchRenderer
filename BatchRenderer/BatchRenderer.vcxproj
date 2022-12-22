@@ -155,13 +155,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\3pty\imgui\imgui.cpp" />
-    <ClCompile Include="src\3pty\imgui\imgui_demo.cpp" />
-    <ClCompile Include="src\3pty\imgui\imgui_draw.cpp" />
-    <ClCompile Include="src\3pty\imgui\imgui_impl_glfw.cpp" />
-    <ClCompile Include="src\3pty\imgui\imgui_impl_opengl3.cpp" />
-    <ClCompile Include="src\3pty\imgui\imgui_tables.cpp" />
-    <ClCompile Include="src\3pty\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\3pty\stb_image.cpp" />
     <ClCompile Include="src\App.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -169,15 +162,6 @@
     <ClCompile Include="src\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\3pty\imgui\imconfig.h" />
-    <ClInclude Include="src\3pty\imgui\imgui.h" />
-    <ClInclude Include="src\3pty\imgui\imgui_impl_glfw.h" />
-    <ClInclude Include="src\3pty\imgui\imgui_impl_opengl3.h" />
-    <ClInclude Include="src\3pty\imgui\imgui_impl_opengl3_loader.h" />
-    <ClInclude Include="src\3pty\imgui\imgui_internal.h" />
-    <ClInclude Include="src\3pty\imgui\imstb_rectpack.h" />
-    <ClInclude Include="src\3pty\imgui\imstb_textedit.h" />
-    <ClInclude Include="src\3pty\imgui\imstb_truetype.h" />
     <ClInclude Include="src\App.h" />
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\Structs.h" />
