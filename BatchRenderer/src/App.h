@@ -20,6 +20,12 @@ public:
 
 	int Run();
 private:
+	enum BackgroundState {
+		Fullscreen = 0,
+		Centered = 1,
+		Stretched = 2
+	};
+
 	GLFWwindow* m_Window;
 
 	std::string m_Title;
@@ -36,13 +42,14 @@ private:
 	glm::vec2 m_FirstQuad = { 505.0f, 300.0f };
 	glm::vec4 m_BackColor = { 0.0f, 0.0f ,0.0f, 0.0f };
 	bool m_SetBackground = false;
-	bool m_StretchBackground = false;
+	int m_BackgroundState = BackgroundState::Stretched;
 	Vertex m_BackgroundPic[4];
 
 	void OnUpdate();
 	void OnRender();
 	void OnImGuiRender();
 	
-	void SetBackground(const Texture& pic, bool fullscreen = true);
+	void SetBackground(const Texture& pic, int backgroundState = 2);
 	void SetBackground(glm::vec4 color);
+	
 };

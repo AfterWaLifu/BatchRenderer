@@ -187,7 +187,7 @@ void App::OnRender()
     Vertex* buffer = vertices.data();
 
     if (m_SetBackground) {
-        SetBackground(*m_Pic2, m_StretchBackground);
+        SetBackground(*m_Pic2, m_BackgroundState);
         memcpy(buffer, m_BackgroundPic, sizeof(m_BackgroundPic));
         buffer += 4;
         indexCount += 6;
@@ -225,24 +225,48 @@ void App::OnImGuiRender()
     ImGui::DragFloat2("Pisunya position", &m_FirstQuad.x, 1.0f);
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
     ImGui::Checkbox("Turn ON Background Pic", &m_SetBackground);
-    ImGui::Checkbox("Stretch Background Pic", &m_StretchBackground);
+    ImGui::DragInt("Background mode: ", &m_BackgroundState, 0.01f, 0, 2);
+    ImGui::Text("0:Fullscreen, 1:Centered, 2:Stretched");
 }
 
-void App::SetBackground(const Texture& pic, bool fullscreen)
+void App::SetBackground(const Texture& pic, int backgroundState)
 {
-    if (fullscreen) {
-        CreateQuad(m_BackgroundPic, 
-            0.0f,0.0f,
-            (float)m_Width, (float)m_Height,
-            0.0f ,(float)pic.PictureDescriptor -1.0f);
-    }
-    else {
-        float picWidth = pic.GetWidth();
-        float picHeight = pic.GetHeight();
-        CreateQuad(m_BackgroundPic, 
-            m_Width/2 - picWidth/2, m_Height/2-picHeight/2,
-            picWidth, picHeight,
+    float picWidth  = (float) pic.GetWidth();
+    float picHeight = (float) pic.GetHeight();
+
+    switch (backgroundState) {
+
+    case (int) BackgroundState::Fullscreen:
+        CreateQuad(m_BackgroundPic,
+            { 0.0f, 0.0f },
+            { (float)m_Width, (float)m_Height },
+            0.0f, (float)pic.PictureDescriptor - 1.0f);
+        break;
+
+    case (int) BackgroundState::Centered:
+        CreateQuad(m_BackgroundPic,
+            { m_Width / 2 - picWidth / 2, m_Height / 2 - picHeight / 2 },
+            { picWidth, picHeight },
             0.0f, (float)pic.PictureDescriptor - 1);
+        break;
+
+    case (int) BackgroundState::Stretched:
+
+        if ( (float)m_Height/picHeight > (float)m_Width/picWidth ) {
+            float imageAspectRation = picWidth / picHeight;
+            picHeight += ((float)m_Width -picWidth) * imageAspectRation;
+            picWidth = (float)m_Width;
+        }
+        else {
+            float imageAspectRation = picHeight / picWidth;
+            picWidth += ((float)m_Height - picHeight) * imageAspectRation;
+            picHeight = (float)m_Height;
+        }
+        CreateQuad(m_BackgroundPic,
+            { m_Width / 2 - picWidth / 2, m_Height / 2 - picHeight / 2 },
+            { picWidth, picHeight },
+            0.0f, (float)pic.PictureDescriptor - 1);
+        break;
     }
 }
 
