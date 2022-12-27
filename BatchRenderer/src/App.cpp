@@ -187,7 +187,7 @@ void App::OnRender()
     Vertex* buffer = vertices.data();
 
     if (m_SetBackground) {
-        SetBackground(*m_Pic2, m_BackgroundState);
+        SetBackground(*m_Pic3, m_BackgroundState);
         memcpy(buffer, m_BackgroundPic, sizeof(m_BackgroundPic));
         buffer += 4;
         indexCount += 6;
@@ -253,7 +253,7 @@ void App::SetBackground(const Texture& pic, int backgroundState)
     case (int) BackgroundState::Stretched:
 
         if ( (float)m_Height/picHeight > (float)m_Width/picWidth ) {
-            float imageAspectRation = picWidth / picHeight;
+            float imageAspectRation = picHeight / picWidth;
             picHeight += ((float)m_Width -picWidth) * imageAspectRation;
             picWidth = (float)m_Width;
         }
