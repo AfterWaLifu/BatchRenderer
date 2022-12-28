@@ -76,6 +76,9 @@ App::App(const std::string title, uint32_t width, uint32_t height)
     glfwSwapInterval(1);
 
     std::cout << glGetString(GL_VERSION) << std::endl;
+    int32_t texture_units = 0;
+    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &texture_units);
+    std::cout << "Max texture count is a " << texture_units << std::endl;
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
